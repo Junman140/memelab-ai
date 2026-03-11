@@ -1,560 +1,680 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { ArrowRight, ChevronDown, ChevronUp, ImageIcon, Wand2, Bot } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useRef } from 'react';
+import { ArrowRight, Globe } from 'lucide-react';
 import { AppLayout } from '@/components/AppLayout';
 
-// ─── Static data (honest copy only) ──────────────────────────────────────────
+// ─── Scroll-reveal hook ───────────────────────────────────────────────────────
+
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    // Observe the container and all direct reveal children
+    const targets = el.querySelectorAll('.reveal');
+    targets.forEach((t) => obs.observe(t));
+    return () => obs.disconnect();
+  }, []);
+  return ref;
+}
+
+// ─── Data ────────────────────────────────────────────────────────────────────
 
 const TOOLS = [
   {
-    title: 'Meme Studio',
-    desc: 'Pick from curated meme templates and customise with text, filters, and effects. Export as PNG or GIF instantly.',
-    cta: 'Open Studio',
+    label: 'Meme Studio',
+    tag: 'Video & GIF',
+    desc: 'Pick from curated meme formats, layer your text, apply filters — export as video or GIF in seconds.',
     href: '/meme-studio',
-    Icon: ImageIcon,
+    img: '/images/tool-meme.jpg',
+    accent: '#00E5A0',
   },
   {
-    title: 'AI Image Studio',
-    desc: 'Describe any image and let AI generate it. Remix existing photos into iconic meme formats with one click.',
-    cta: 'Try Generator',
+    label: 'Image Studio',
+    tag: 'AI Generation',
+    desc: 'Describe any image and watch AI render it. Generate logos, avatars, or drop it into an iconic meme template.',
     href: '/image-studio',
-    Icon: Wand2,
+    img: '/images/tool-image.jpg',
+    accent: '#00E5A0',
   },
   {
-    title: 'AI Companion',
-    desc: 'Voice-powered creative assistant. Brainstorm captions, get meme ideas, and explore trends in real time.',
-    cta: 'Start Chat',
-    href: '/companion',
-    Icon: Bot,
+    label: 'Website Generator',
+    tag: 'Coming Soon',
+    desc: 'Tell the AI what kind of meme site you want and receive a fully-built, deployable page in minutes.',
+    href: '#',
+    img: '/images/tool-web.jpg',
+    accent: '#00E5A0',
+    soon: true,
   },
 ];
 
-const FEATURES = [
-  {
-    title: 'AI-powered creation',
-    desc: 'Generate images, captions, and remixes using Gemini and Memelord AI models.',
-  },
-  {
-    title: 'No watermarks',
-    desc: 'Download full-quality PNG and GIF exports. No watermarks, no hidden fees.',
-  },
-  {
-    title: 'Token-gated AI',
-    desc: 'Connect your wallet with $LIKA tokens to unlock premium AI generation features.',
-  },
-];
-
-const STEPS = [
-  { num: '01', title: 'Pick a template', desc: 'Choose from our curated meme formats or start with a blank canvas.' },
-  { num: '02', title: 'Add your text', desc: 'Customise with text, filters, and effects. Preview updates in real time.' },
-  { num: '03', title: 'Export instantly', desc: 'Download as PNG or GIF — no account needed for templates.' },
-];
-
-const FAQS = [
-  {
-    q: 'Is MemeLab AI free to use?',
-    a: 'Template-based meme creation is free with no account required. AI generation features (image generation, AI companion) require a wallet connection and $LIKA tokens.',
-  },
-  {
-    q: 'Do I need to sign up?',
-    a: 'No account is needed to use templates and the meme editor. A wallet connection is required to access AI-powered features.',
-  },
-  {
-    q: 'What is $LIKA?',
-    a: '$LIKA is the native utility token on Solana that powers premium features on MemeLab AI. Connect your wallet via the Dashboard to top up and track usage.',
-  },
-  {
-    q: 'What formats can I export?',
-    a: 'Export as PNG, JPG, or animated GIF depending on the tool you use. All exports are watermark-free.',
-  },
+const CAPABILITIES = [
+  { num: '01', title: 'Video Meme Export', body: 'Render your creation as an MP4 or animated GIF — every frame, pixel-perfect.' },
+  { num: '02', title: 'AI Image Generation', body: 'Gemini and Memelord models generate images from prompts or remix existing photos into templates.' },
+  { num: '03', title: 'Voice Companion', body: 'Brainstorm captions and trend ideas with an AI assistant that knows the meme ecosystem.' },
+  { num: '04', title: 'Token-gated AI', body: 'Connect a Solana wallet and hold $CLAW to unlock premium AI generation. Template editing is always free.' },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const pageRef = useScrollReveal();
 
   return (
     <AppLayout>
-      {/* ── Hero ── */}
-      <section
-        style={{
-          padding: 'var(--space-20) var(--space-6)',
-          textAlign: 'center',
-        }}
-      >
-        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
-          <div
-            style={{
-              display: 'inline-block',
-              marginBottom: 'var(--space-6)',
-              padding: 'var(--space-2) var(--space-4)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-full)',
-              fontSize: 'var(--font-xs)',
-              fontWeight: 600,
-              letterSpacing: '0.04em',
-              color: 'var(--accent-primary)',
-            }}
-          >
-            AI meme creation on Solana
-          </div>
+      <div ref={pageRef}>
 
-          <h1
-            style={{
-              fontSize: 'clamp(2.25rem, 8vw, 4rem)',
-              fontWeight: 700,
-              lineHeight: 1.1,
-              marginBottom: 'var(--space-6)',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Make memes with AI.
-            <br />
-            <span style={{ color: 'var(--accent-primary)' }}>Actually good ones.</span>
-          </h1>
-
-          <p
-            style={{
-              fontSize: 'var(--font-lg)',
-              color: 'var(--text-secondary)',
-              lineHeight: 1.6,
-              maxWidth: '560px',
-              margin: '0 auto var(--space-10)',
-            }}
-          >
-            AI image generation, curated templates, and a voice companion — all powered by $LIKA.
-          </p>
-
-          <div
-            style={{
-              display: 'flex',
-              gap: 'var(--space-3)',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-            }}
-          >
-            <Link
-              href="/meme-studio"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-3) var(--space-6)',
-                background: 'white',
-                color: '#020617',
-                borderRadius: 'var(--radius-full)',
-                fontSize: 'var(--font-sm)',
-                fontWeight: 600,
-                textDecoration: 'none',
-                transition: 'all 200ms ease',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)';
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 32px rgba(16,185,129,0.25)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-                (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-              }}
-            >
-              Start creating
-              <ArrowRight style={{ width: '16px', height: '16px' }} />
-            </Link>
-            <Link
-              href="/image-studio"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-3) var(--space-6)',
-                background: 'transparent',
-                color: 'var(--text)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-full)',
-                fontSize: 'var(--font-sm)',
-                fontWeight: 600,
-                textDecoration: 'none',
-                transition: 'all 200ms ease',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)';
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-medium)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-              }}
-            >
-              Try AI generation
-              <ArrowRight style={{ width: '16px', height: '16px' }} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features strip ── */}
-      <section style={{ padding: 'var(--space-10) var(--space-6)', borderTop: '1px solid var(--border)' }}>
-        <div
+        {/* ── Hero ──────────────────────────────────────────────────────────── */}
+        <section
           style={{
-            maxWidth: '1280px',
-            margin: '0 auto',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: 'var(--space-4)',
+            position: 'relative',
+            minHeight: '92vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: 'var(--space-20) var(--space-6)',
+            overflow: 'hidden',
           }}
         >
-          {FEATURES.map((f, i) => (
-            <div
-              key={i}
-              style={{
-                padding: 'var(--space-6)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-lg)',
-                background: 'var(--bg-secondary)',
-                transition: 'all 200ms ease',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.borderColor = 'var(--border-medium)';
-                el.style.transform = 'translateY(-3px)';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.borderColor = 'var(--border)';
-                el.style.transform = 'translateY(0)';
-              }}
-            >
-              <h3 style={{ fontSize: 'var(--font-base)', fontWeight: 600, marginBottom: 'var(--space-2)' }}>
-                {f.title}
-              </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-sm)', lineHeight: 1.6 }}>
-                {f.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+          {/* Background glow */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(ellipse 70% 55% at 50% 0%, rgba(0,229,160,0.08) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+          {/* Subtle grid */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage:
+                'linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)',
+              backgroundSize: '60px 60px',
+              maskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%)',
+              pointerEvents: 'none',
+            }}
+          />
 
-      {/* ── Tools section ── */}
-      <section style={{ padding: 'var(--space-16) var(--space-6)' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div style={{ marginBottom: 'var(--space-10)' }}>
-            <p
+          <div style={{ maxWidth: '820px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            {/* Eyebrow */}
+            <div
+              className="reveal animate-fade-up"
               style={{
-                fontSize: 'var(--font-xs)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                marginBottom: 'var(--space-6)',
+                padding: '6px 14px',
+                border: '1px solid rgba(0,229,160,0.25)',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '12px',
                 fontWeight: 600,
-                letterSpacing: '0.08em',
+                letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 color: 'var(--accent-primary)',
-                marginBottom: 'var(--space-3)',
+                background: 'rgba(0,229,160,0.06)',
               }}
             >
-              What you can build
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: 'var(--accent-primary)',
+                  display: 'inline-block',
+                  animation: 'accentPulse 2.5s ease-in-out infinite',
+                }}
+              />
+              AI meme creation · Powered by $CLAW
+            </div>
+
+            {/* Headline */}
+            <h1
+              className="reveal animate-fade-up delay-100"
+              style={{
+                fontSize: 'clamp(2.6rem, 8vw, 5rem)',
+                fontWeight: 700,
+                lineHeight: 1.08,
+                letterSpacing: '-0.03em',
+                marginBottom: 'var(--space-6)',
+              }}
+            >
+              Create memes
+              <br />
+              <span
+                style={{
+                  background: 'linear-gradient(90deg, #00E5A0, #7FFFD4)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                that actually hit.
+              </span>
+            </h1>
+
+            {/* Sub */}
+            <p
+              className="reveal animate-fade-up delay-200"
+              style={{
+                fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.6,
+                maxWidth: '560px',
+                margin: '0 auto var(--space-10)',
+              }}
+            >
+              AI video memes, generated images, and voice-powered brainstorming —
+              all in one studio. Template editing is free. AI requires $CLAW.
+            </p>
+
+            {/* CTAs */}
+            <div
+              className="reveal animate-fade-up delay-300"
+              style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'center', flexWrap: 'wrap' }}
+            >
+              <Link
+                href="/meme-studio"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  padding: '13px 28px',
+                  background: 'white',
+                  color: '#080B12',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: 'var(--font-sm)',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  transition: 'opacity 180ms ease, transform 180ms ease',
+                  letterSpacing: '-0.01em',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.opacity = '0.9';
+                  (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.opacity = '1';
+                  (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
+                }}
+              >
+                Start creating
+                <ArrowRight style={{ width: '15px', height: '15px' }} />
+              </Link>
+              <Link
+                href="/image-studio"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  padding: '13px 28px',
+                  background: 'transparent',
+                  color: 'var(--text)',
+                  border: '1px solid var(--border-medium)',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: 'var(--font-sm)',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  transition: 'border-color 180ms ease, background 180ms ease',
+                  letterSpacing: '-0.01em',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,160,0.4)';
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(0,229,160,0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-medium)';
+                  (e.currentTarget as HTMLElement).style.background = 'transparent';
+                }}
+              >
+                Explore Image Studio
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Hero visual / preview strip ───────────────────────────────────── */}
+        <section
+          style={{
+            padding: '0 var(--space-6) var(--space-20)',
+            maxWidth: '1100px',
+            margin: '0 auto',
+          }}
+        >
+          <div
+            className="reveal"
+            style={{
+              position: 'relative',
+              borderRadius: 'var(--radius-2xl)',
+              overflow: 'hidden',
+              border: '1px solid var(--border-medium)',
+              background: 'var(--bg-secondary)',
+              aspectRatio: '16/7',
+            }}
+          >
+            <Image
+              src="/images/hero-preview.jpg"
+              alt="MemeClaw AI studio preview showing meme creation interface"
+              fill
+              style={{ objectFit: 'cover', opacity: 0.85 }}
+              priority
+            />
+            {/* Bottom gradient fade */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '50%',
+                background: 'linear-gradient(to top, var(--bg) 0%, transparent 100%)',
+              }}
+            />
+          </div>
+        </section>
+
+        {/* ── Tools ─────────────────────────────────────────────────────────── */}
+        <section
+          style={{
+            maxWidth: '1100px',
+            margin: '0 auto',
+            padding: '0 var(--space-6) var(--space-24)',
+          }}
+        >
+          <div className="reveal" style={{ marginBottom: 'var(--space-12)' }}>
+            <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent-primary)', marginBottom: 'var(--space-3)' }}>
+              The Studio Suite
             </p>
             <h2
               style={{
-                fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
                 fontWeight: 700,
-                letterSpacing: '-0.02em',
-                marginBottom: 'var(--space-2)',
+                letterSpacing: '-0.025em',
+                lineHeight: 1.1,
               }}
             >
-              Three ways to create
+              Three tools. One creative OS.
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-sm)', lineHeight: 1.6, maxWidth: '480px' }}>
-              Each tool is built for a different workflow. Pick the one that fits how you think.
-            </p>
           </div>
 
           <div
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: 'var(--space-4)',
+              gap: 'var(--space-5)',
             }}
           >
-            {TOOLS.map((tool) => (
+            {TOOLS.map((tool, i) => (
               <Link
-                key={tool.title}
+                key={tool.label}
                 href={tool.href}
+                onClick={tool.soon ? (e) => e.preventDefault() : undefined}
+                className={`reveal reveal-delay-${i + 1} hover-lift glow-on-hover`}
                 style={{
-                  padding: 'var(--space-6)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-lg)',
-                  background: 'var(--bg-secondary)',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  transition: 'all 200ms ease',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 'var(--space-4)',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.borderColor = 'var(--border-medium)';
-                  el.style.background = 'var(--bg-tertiary)';
-                  el.style.transform = 'translateY(-4px)';
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.borderColor = 'var(--border)';
-                  el.style.background = 'var(--bg-secondary)';
-                  el.style.transform = 'translateY(0)';
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-xl)',
+                  overflow: 'hidden',
+                  textDecoration: 'none',
+                  background: 'var(--bg-secondary)',
+                  cursor: tool.soon ? 'default' : 'pointer',
+                  opacity: tool.soon ? 0.7 : 1,
                 }}
               >
+                {/* Image area */}
                 <div
                   style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'rgba(16,185,129,0.12)',
-                    border: '1px solid rgba(16,185,129,0.25)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    position: 'relative',
+                    aspectRatio: '16/9',
+                    background: 'var(--bg-tertiary)',
+                    overflow: 'hidden',
                   }}
                 >
-                  <tool.Icon style={{ width: '18px', height: '18px', color: 'var(--accent-primary)' }} />
+                  <Image
+                    src={tool.img}
+                    alt={tool.label}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                  />
+                  {/* Tag pill */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 'var(--space-3)',
+                      left: 'var(--space-3)',
+                      padding: '4px 10px',
+                      borderRadius: 'var(--radius-full)',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      letterSpacing: '0.04em',
+                      background: tool.soon ? 'rgba(255,255,255,0.1)' : 'rgba(0,229,160,0.15)',
+                      color: tool.soon ? 'var(--text-secondary)' : 'var(--accent-primary)',
+                      border: `1px solid ${tool.soon ? 'rgba(255,255,255,0.12)' : 'rgba(0,229,160,0.25)'}`,
+                      backdropFilter: 'blur(8px)',
+                    }}
+                  >
+                    {tool.tag}
+                  </div>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: 'var(--font-base)', fontWeight: 600, marginBottom: 'var(--space-2)' }}>
-                    {tool.title}
+                {/* Content */}
+                <div style={{ padding: 'var(--space-5)', flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  <h3
+                    style={{
+                      fontSize: 'var(--font-lg)',
+                      fontWeight: 700,
+                      letterSpacing: '-0.015em',
+                      color: 'var(--text)',
+                    }}
+                  >
+                    {tool.label}
                   </h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-sm)', lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 'var(--font-sm)', color: 'var(--text-secondary)', lineHeight: 1.6, flex: 1 }}>
                     {tool.desc}
                   </p>
-                </div>
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-1)',
-                    fontSize: 'var(--font-sm)',
-                    fontWeight: 600,
-                    color: 'var(--accent-primary)',
-                  }}
-                >
-                  {tool.cta}
-                  <ArrowRight style={{ width: '14px', height: '14px' }} />
+                  {!tool.soon && (
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'var(--accent-primary)',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      Open Studio
+                      <ArrowRight style={{ width: '13px', height: '13px' }} />
+                    </span>
+                  )}
+                  {tool.soon && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      <Globe style={{ width: '13px', height: '13px' }} />
+                      Coming soon
+                    </span>
+                  )}
                 </div>
               </Link>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── How it works ── */}
-      <section
-        style={{
-          padding: 'var(--space-16) var(--space-6)',
-          borderTop: '1px solid var(--border)',
-          background: 'var(--bg-secondary)',
-        }}
-      >
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 'var(--space-12)' }}>
-            <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 'var(--space-2)' }}>
-              How it works
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-sm)' }}>
-              Three steps from idea to shareable meme
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: 'var(--space-8)',
-            }}
-          >
-            {STEPS.map((step) => (
-              <div key={step.num} style={{ textAlign: 'center' }}>
-                <div
-                  style={{
-                    width: '56px',
-                    height: '56px',
-                    borderRadius: 'var(--radius-lg)',
-                    background: 'rgba(16,185,129,0.1)',
-                    border: '1px solid rgba(16,185,129,0.25)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto var(--space-4)',
-                    fontSize: 'var(--font-xl)',
-                    fontWeight: 700,
-                    color: 'var(--accent-primary)',
-                  }}
-                >
-                  {step.num}
-                </div>
-                <h3 style={{ fontSize: 'var(--font-base)', fontWeight: 600, marginBottom: 'var(--space-2)' }}>
-                  {step.title}
-                </h3>
-                <p style={{ fontSize: 'var(--font-sm)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                  {step.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ ── */}
-      <section style={{ padding: 'var(--space-16) var(--space-6)' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 'var(--space-10)' }}>
-            <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 'var(--space-2)' }}>
-              Questions answered
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-sm)' }}>
-              The most common things people ask before getting started
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-            {FAQS.map((faq, idx) => (
-              <div
-                key={idx}
+        {/* ── Capabilities ─────────────────────────────────────────────────── */}
+        <section
+          style={{
+            borderTop: '1px solid var(--border)',
+            padding: 'var(--space-24) var(--space-6)',
+          }}
+        >
+          <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+            <div className="reveal" style={{ marginBottom: 'var(--space-14)' }}>
+              <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent-primary)', marginBottom: 'var(--space-3)' }}>
+                What it does
+              </p>
+              <h2
                 style={{
-                  border: '1px solid',
-                  borderColor: openFaq === idx ? 'var(--border-medium)' : 'var(--border)',
-                  borderRadius: 'var(--radius-lg)',
-                  background: openFaq === idx ? 'var(--bg-secondary)' : 'transparent',
-                  overflow: 'hidden',
-                  transition: 'all 200ms ease',
+                  fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+                  fontWeight: 700,
+                  letterSpacing: '-0.025em',
+                  lineHeight: 1.1,
+                  maxWidth: '540px',
                 }}
               >
-                <button
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                Built for every layer of meme culture.
+              </h2>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: 'var(--space-6)',
+              }}
+            >
+              {CAPABILITIES.map((cap, i) => (
+                <div
+                  key={cap.num}
+                  className={`reveal reveal-delay-${i + 1}`}
                   style={{
-                    width: '100%',
-                    padding: 'var(--space-4) var(--space-5)',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: 'var(--space-4)',
-                    color: 'var(--text)',
-                    fontFamily: 'inherit',
+                    padding: 'var(--space-6)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-lg)',
+                    background: 'var(--bg-secondary)',
                   }}
                 >
-                  <span style={{ fontSize: 'var(--font-sm)', fontWeight: 600 }}>{faq.q}</span>
-                  {openFaq === idx ? (
-                    <ChevronUp style={{ width: '16px', height: '16px', color: 'var(--accent-primary)', flexShrink: 0 }} />
-                  ) : (
-                    <ChevronDown style={{ width: '16px', height: '16px', color: 'var(--text-secondary)', flexShrink: 0 }} />
-                  )}
-                </button>
-                {openFaq === idx && (
                   <p
                     style={{
-                      padding: '0 var(--space-5) var(--space-4)',
-                      color: 'var(--text-secondary)',
-                      fontSize: 'var(--font-sm)',
-                      lineHeight: 1.7,
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      color: 'var(--accent-primary)',
+                      marginBottom: 'var(--space-4)',
+                      letterSpacing: '0.04em',
                     }}
                   >
-                    {faq.a}
+                    {cap.num}
                   </p>
-                )}
-              </div>
-            ))}
+                  <h3
+                    style={{
+                      fontSize: 'var(--font-base)',
+                      fontWeight: 700,
+                      letterSpacing: '-0.01em',
+                      marginBottom: 'var(--space-2)',
+                    }}
+                  >
+                    {cap.title}
+                  </h3>
+                  <p style={{ fontSize: 'var(--font-sm)', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                    {cap.body}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Final CTA ── */}
-      <section
-        style={{
-          padding: 'var(--space-16) var(--space-6)',
-          textAlign: 'center',
-          borderTop: '1px solid var(--border)',
-        }}
-      >
-        <div style={{ maxWidth: '560px', margin: '0 auto' }}>
-          <h2
+        {/* ── $CLAW token strip ────────────────────────────────────────────── */}
+        <section
+          style={{
+            borderTop: '1px solid var(--border)',
+            padding: 'var(--space-20) var(--space-6)',
+          }}
+        >
+          <div
             style={{
-              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              marginBottom: 'var(--space-4)',
+              maxWidth: '860px',
+              margin: '0 auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              gap: 'var(--space-6)',
             }}
           >
-            Ready to create?
-          </h2>
-          <p
-            style={{
-              color: 'var(--text-secondary)',
-              marginBottom: 'var(--space-8)',
-              fontSize: 'var(--font-sm)',
-              lineHeight: 1.7,
-            }}
-          >
-            Template editing is free and instant. Connect your wallet to unlock AI generation powered by $LIKA.
-          </p>
-          <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link
-              href="/meme-studio"
+            <div
+              className="reveal"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)',
-                padding: 'var(--space-3) var(--space-6)',
-                background: 'white',
-                color: '#020617',
+                padding: '5px 14px',
+                border: '1px solid rgba(0,229,160,0.2)',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '12px',
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--accent-primary)',
+                background: 'rgba(0,229,160,0.06)',
+              }}
+            >
+              $CLAW · Solana
+            </div>
+            <h2
+              className="reveal reveal-delay-1"
+              style={{
+                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+                fontWeight: 700,
+                letterSpacing: '-0.025em',
+                lineHeight: 1.1,
+              }}
+            >
+              AI access is token-gated.
+              <br />
+              <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>
+                Templates are always free.
+              </span>
+            </h2>
+            <p
+              className="reveal reveal-delay-2"
+              style={{
+                fontSize: 'var(--font-base)',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.65,
+                maxWidth: '520px',
+              }}
+            >
+              Hold $CLAW in your Solana wallet to unlock AI image generation, the voice companion,
+              and advanced meme remixing. Connect via the Dashboard to top up and track usage.
+            </p>
+            <Link
+              href="/dashboard"
+              className="reveal reveal-delay-3"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: '12px 24px',
+                border: '1px solid rgba(0,229,160,0.3)',
                 borderRadius: 'var(--radius-full)',
                 fontSize: 'var(--font-sm)',
                 fontWeight: 600,
+                color: 'var(--accent-primary)',
                 textDecoration: 'none',
-                transition: 'all 200ms ease',
+                background: 'rgba(0,229,160,0.06)',
+                transition: 'background 180ms ease, border-color 180ms ease',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)';
+                (e.currentTarget as HTMLElement).style.background = 'rgba(0,229,160,0.12)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,160,0.5)';
               }}
               onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(0,229,160,0.06)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,229,160,0.3)';
+              }}
+            >
+              Open Dashboard
+              <ArrowRight style={{ width: '14px', height: '14px' }} />
+            </Link>
+          </div>
+        </section>
+
+        {/* ── Final CTA ─────────────────────────────────────────────────────── */}
+        <section
+          style={{
+            borderTop: '1px solid var(--border)',
+            padding: 'var(--space-24) var(--space-6) var(--space-20)',
+            textAlign: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Bottom glow */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '600px',
+              height: '300px',
+              background: 'radial-gradient(ellipse at center bottom, rgba(0,229,160,0.08) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div style={{ maxWidth: '660px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            <h2
+              className="reveal"
+              style={{
+                fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                fontWeight: 700,
+                letterSpacing: '-0.03em',
+                lineHeight: 1.08,
+                marginBottom: 'var(--space-6)',
+              }}
+            >
+              Ready to make
+              <br />
+              something viral?
+            </h2>
+            <p
+              className="reveal reveal-delay-1"
+              style={{
+                fontSize: 'var(--font-base)',
+                color: 'var(--text-secondary)',
+                marginBottom: 'var(--space-8)',
+                lineHeight: 1.6,
+              }}
+            >
+              No account needed to start. Open the studio and create your first meme now.
+            </p>
+            <Link
+              href="/meme-studio"
+              className="reveal reveal-delay-2"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: '15px 36px',
+                background: 'white',
+                color: '#080B12',
+                borderRadius: 'var(--radius-full)',
+                fontSize: 'var(--font-base)',
+                fontWeight: 700,
+                textDecoration: 'none',
+                letterSpacing: '-0.01em',
+                transition: 'opacity 180ms ease, transform 180ms ease',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.opacity = '0.88';
+                (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.opacity = '1';
                 (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
               }}
             >
               Open Meme Studio
               <ArrowRight style={{ width: '16px', height: '16px' }} />
             </Link>
-            <Link
-              href="/dashboard"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-3) var(--space-6)',
-                background: 'transparent',
-                color: 'var(--text)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-full)',
-                fontSize: 'var(--font-sm)',
-                fontWeight: 600,
-                textDecoration: 'none',
-                transition: 'all 200ms ease',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)';
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-medium)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-              }}
-            >
-              Connect wallet
-            </Link>
           </div>
-        </div>
-      </section>
+        </section>
+
+      </div>
     </AppLayout>
   );
 }

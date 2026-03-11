@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { WalletButton } from './WalletButton';
-import { Menu, X, ChevronDown, ImageIcon, Wand2, Bot, LayoutDashboard, Search, Map } from 'lucide-react';
+import { Menu, X, ChevronDown, ImageIcon, Wand2, Bot, LayoutDashboard, Search, Map, Globe } from 'lucide-react';
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
@@ -13,19 +13,29 @@ const AI_TOOLS = [
     href: '/meme-studio',
     icon: ImageIcon,
     label: 'Meme Studio',
-    desc: 'Create memes from templates',
+    desc: 'Video & GIF meme creation',
+    soon: false,
   },
   {
     href: '/image-studio',
     icon: Wand2,
     label: 'Image Studio',
-    desc: 'AI-generated images & remixes',
+    desc: 'Logos, avatars, AI image generation',
+    soon: false,
   },
   {
     href: '/companion',
     icon: Bot,
     label: 'AI Companion',
-    desc: 'Brainstorm with a voice assistant',
+    desc: 'Voice-powered creative assistant',
+    soon: false,
+  },
+  {
+    href: '#',
+    icon: Globe,
+    label: 'Website Generator',
+    desc: 'Generate meme sites with AI',
+    soon: true,
   },
 ];
 
@@ -81,14 +91,14 @@ const ProductDropdown: React.FC<DropdownMenuProps> = ({ open, onClose }) => {
       >
         AI Tools
       </p>
-      {AI_TOOLS.map(({ href, icon: Icon, label, desc }) => {
-        const active = pathname === href || pathname.startsWith(href);
+      {AI_TOOLS.map(({ href, icon: Icon, label, desc, soon }) => {
+        const active = !soon && (pathname === href || pathname.startsWith(href));
         return (
           <Link
             key={href}
             href={href}
             role="menuitem"
-            onClick={onClose}
+            onClick={soon ? (e) => e.preventDefault() : onClose}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -96,48 +106,54 @@ const ProductDropdown: React.FC<DropdownMenuProps> = ({ open, onClose }) => {
               padding: 'var(--space-3)',
               borderRadius: 'var(--radius-md)',
               textDecoration: 'none',
-              background: active ? 'rgba(16,185,129,0.08)' : 'transparent',
+              background: active ? 'rgba(0,229,160,0.07)' : 'transparent',
               transition: 'background 150ms ease',
+              opacity: soon ? 0.6 : 1,
+              cursor: soon ? 'default' : 'pointer',
             }}
             onMouseEnter={(e) => {
-              if (!active) (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)';
+              if (!active && !soon) (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)';
             }}
             onMouseLeave={(e) => {
-              if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent';
+              if (!active && !soon) (e.currentTarget as HTMLElement).style.background = 'transparent';
             }}
           >
             <div
               style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: 'var(--radius-sm)',
-                background: active ? 'rgba(16,185,129,0.18)' : 'var(--bg-tertiary)',
-                border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'var(--border)'}`,
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                background: active ? 'rgba(0,229,160,0.15)' : 'var(--bg-tertiary)',
+                border: `1px solid ${active ? 'rgba(0,229,160,0.3)' : 'var(--border)'}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}
             >
-              <Icon
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  color: active ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                }}
-              />
+              <Icon style={{ width: '15px', height: '15px', color: active ? 'var(--accent-primary)' : 'var(--text-secondary)' }} />
             </div>
-            <div>
-              <p
-                style={{
-                  fontSize: 'var(--font-sm)',
-                  fontWeight: 600,
-                  color: active ? 'var(--accent-primary)' : 'var(--text)',
-                  marginBottom: '2px',
-                }}
-              >
-                {label}
-              </p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: '2px' }}>
+                <p style={{ fontSize: 'var(--font-sm)', fontWeight: 600, color: active ? 'var(--accent-primary)' : 'var(--text)' }}>
+                  {label}
+                </p>
+                {soon && (
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    background: 'rgba(0,229,160,0.12)',
+                    color: 'var(--accent-primary)',
+                    border: '1px solid rgba(0,229,160,0.2)',
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                  }}>
+                    Soon
+                  </span>
+                )}
+              </div>
               <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
                 {desc}
               </p>
@@ -420,16 +436,17 @@ export const Navbar = () => {
                 letterSpacing: '0.02em',
               }}
             >
-              ML
+              MC
             </div>
             <span
               style={{
                 fontWeight: 700,
                 fontSize: 'var(--font-sm)',
+                letterSpacing: '-0.01em',
                 color: 'var(--text)',
               }}
             >
-              MemeLab<span style={{ color: 'var(--accent-primary)' }}> AI</span>
+              MemeClaw<span style={{ color: 'var(--accent-primary)' }}> AI</span>
             </span>
           </Link>
 
