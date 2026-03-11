@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 interface TokenInfo {
-  mint: string;
+  mint: string; // contract address on BNB Chain
   name: string;
   symbol: string;
   decimals: number;
