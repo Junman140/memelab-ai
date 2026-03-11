@@ -97,9 +97,7 @@ export default function Home() {
       <Navbar />
 
       <main className="flex-1">
-        {/* ═══════════════════════════════════════════════════════════ */
         {/* HERO SECTION */}
-        {/* ═══════════════════════════════════════════════════════════ */}
         <section style={{ padding: 'var(--space-20) var(--space-6)' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
             {/* Eyebrow Badge */}
@@ -227,9 +225,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════════ */
         {/* FEATURES GRID */}
-        {/* ═══════════════════════════════════════════════════════════ */}
         <section style={{ padding: 'var(--space-12) var(--space-6)', borderTop: '1px solid var(--border)' }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
             <div
@@ -274,9 +270,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════════ */
         {/* TEMPLATES SECTION */}
-        {/* ═══════════════════════════════════════════════════════════ */}
         <section style={{ padding: 'var(--space-16) var(--space-6)' }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
             <div style={{ marginBottom: 'var(--space-8)' }}>
@@ -423,9 +417,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════════ */
         {/* TOOLS SECTION */}
-        {/* ═══════════════════════════════════════════════════════════ */}
         <section style={{ padding: 'var(--space-16) var(--space-6)', borderTop: '1px solid var(--border)' }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
             <div style={{ marginBottom: 'var(--space-8)' }}>
@@ -497,9 +489,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════════ */
         {/* HOW IT WORKS */}
-        {/* ═══════════════════════════════════════════════════════════ */}
         <section style={{ padding: 'var(--space-16) var(--space-6)', background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)' }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
             <div style={{ marginBottom: 'var(--space-12)', textAlign: 'center' }}>
@@ -554,9 +544,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════════ */
         {/* FAQ SECTION */}
-        {/* ═══════════════════════════════════════════════════════════ */}
         <section style={{ padding: 'var(--space-16) var(--space-6)' }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <div style={{ marginBottom: 'var(--space-8)', textAlign: 'center' }}>
@@ -625,9 +613,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════════ */
         {/* FINAL CTA */}
-        {/* ═══════════════════════════════════════════════════════════ */}
         <section
           style={{
             padding: 'var(--space-16) var(--space-6)',
