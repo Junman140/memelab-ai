@@ -290,7 +290,6 @@ export const CompanionInterface: React.FC = () => {
           )}
           </div>
         </div>
-      </div>
 
       {/* Settings Drawer */}
 
