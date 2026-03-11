@@ -29,10 +29,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       }}
     >
       <Navbar />
-      {/* pb-20 on mobile = clearance for 80px fixed bottom nav. lg:pb-0 cancels it. */}
+      {/*
+        Mobile bottom nav is 64px + safe-area-inset-bottom.
+        The inline style handles the dynamic calc. The lg:!pb-0 Tailwind class
+        overrides it at large screens (desktop has no bottom nav).
+      */}
       <main
-        className="lg:pb-0 pb-20"
-        style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}
+        className="lg:!pb-0"
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+        }}
       >
         {children}
       </main>

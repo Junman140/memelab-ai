@@ -8,7 +8,6 @@ import { VisualizationMode } from './VisualizationToggle';
 import { ConversationTranscript } from './ConversationTranscript';
 import { TextChatDrawer } from './TextChatDrawer';
 import { SettingsDrawer } from './SettingsDrawer';
-import { AppLayout } from './AppLayout';
 import { TokenBalance } from './TokenBalance';
 import { WalletButton } from './WalletButton';
 import { Mic, Square, Loader2, Radio, MessageCircle } from 'lucide-react';
@@ -123,32 +122,23 @@ export const CompanionInterface: React.FC = () => {
   const hasConversationStarted = transcripts.length > 0;
 
   return (
-    <AppLayout
-      onTextChatOpen={() => setIsTextChatOpen(true)}
-      onSettingsOpen={() => setIsSettingsOpen(true)}
-    >
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
-        {/* Header - Wallet UI in top right */}
-        <header
-          className="flex items-center justify-end flex-shrink-0"
-          style={{
-            zIndex: 'var(--z-header)',
-            padding: 'var(--space-4)',
-            gap: 'var(--space-3)',
-            backgroundColor: 'var(--bg)',
-            borderBottom: '1px solid var(--border-opacity-10)',
-          }}
-        >
-          <div className="flex items-center" style={{ gap: 'var(--space-3)' }}>
-            <TokenBalance />
-            <WalletButton />
-          </div>
-        </header>
+    <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* Wallet controls row — sits just below the universal Navbar */}
+      <div
+        className="flex items-center justify-end flex-shrink-0"
+        style={{
+          padding: 'var(--space-3) var(--space-5)',
+          gap: 'var(--space-3)',
+          borderBottom: '1px solid var(--border-opacity-10)',
+        }}
+      >
+        <TokenBalance />
+        <WalletButton />
+      </div>
 
-        {/* Content Area - reserve space for fixed bottom nav on mobile (safe-area aware) */}
-        <div
-          className="flex-1 overflow-hidden pb-[max(5rem,calc(5rem+env(safe-area-inset-bottom)))] lg:pb-0"
-        >
+      {/* Content area */}
+      <div className="flex-1 overflow-hidden">
+
           <div className={`h-full flex transition-all duration-500 ${
           hasConversationStarted 
             ? 'flex-col lg:flex-row' // Split view when conversation started
@@ -303,6 +293,7 @@ export const CompanionInterface: React.FC = () => {
       </div>
 
       {/* Settings Drawer */}
+
       <SettingsDrawer
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
@@ -317,6 +308,6 @@ export const CompanionInterface: React.FC = () => {
 
       {/* Text Chat Drawer */}
       <TextChatDrawer isOpen={isTextChatOpen} onClose={() => setIsTextChatOpen(false)} />
-    </AppLayout>
+    </div>
   );
 };
