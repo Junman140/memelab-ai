@@ -277,6 +277,7 @@ export default function Home() {
               src="/images/hero-preview.jpg"
               alt="MemeClaw AI studio preview showing meme creation interface"
               fill
+              sizes="(max-width: 768px) 100vw, 90vw"
               style={{ objectFit: 'cover', opacity: 0.85 }}
               priority
             />
@@ -357,6 +358,7 @@ export default function Home() {
                     src={tool.img}
                     alt={tool.label}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     style={{ objectFit: 'cover' }}
                   />
                   {/* Tag pill */}
